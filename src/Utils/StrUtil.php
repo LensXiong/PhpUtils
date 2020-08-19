@@ -4,6 +4,16 @@
 class StrUtil
 {
     /**
+     * 生成Token
+     * @return string
+     * @author wangxiong
+     */
+    public static function token()
+    {
+        return md5(bin2hex(uniqid(rand(), true)));
+    }
+
+    /**
      * 产生随机字符串，不长于32位
      * @param int $length
      * @return string 产生的随机字符串
@@ -56,7 +66,7 @@ class StrUtil
     }
 
     /**
-     * 处理RSA密钥内容，拼接对应秘钥开始和结束的格式
+     * RSA密钥处理，拼接对应秘钥开始和结束的格式
      * @param string $key 传入的密钥信息， 可能是文件或者字符串
      * @param string $type
      * @return string
@@ -90,6 +100,72 @@ class StrUtil
         $rsaKey = $beginStr . PHP_EOL . $rsaKey . $endStr;
 
         return $rsaKey;
+    }
+
+    /**
+     * 隐藏手机号中间4位数字
+     * @param $mobile
+     * @return mixed
+     * @author wangxiong
+     */
+    public static function hideUserMobile($mobile)
+    {
+        if (empty($mobile)) {
+            return '';
+        }
+        return substr_replace(trim($mobile), '****', 3, 4);
+    }
+
+    /**
+     * 下划线转驼峰
+     * @param $str
+     * @return string|string[]|null
+     * @author wangxiong
+     */
+    public static function underlineToHump($str)
+    {
+        $str = preg_replace_callback('/([-_]+([a-z]{1}))/i', function ($matches) {
+            return strtoupper($matches[2]);
+        }, $str);
+        return $str;
+    }
+
+    /**
+     * 驼峰转下划线
+     * @param $str
+     * @return string|string[]|null
+     * @author wangxiong
+     */
+    public static function humpToUnderline($str)
+    {
+        $str = preg_replace_callback('/([A-Z]{1})/', function ($matches) {
+            return '_' . strtolower($matches[0]);
+        }, $str);
+        return $str;
+    }
+
+    /**
+     * [1,2,3] => '1','2','3'
+     * 将数组转化为sql可以识别的语句
+     * @param $array
+     * @return bool|string
+     * @throws \Exception
+     * @author wangxiong
+     */
+    public static function buildSqlIn($array)
+    {
+        if (!is_array($array)) {
+            throw new \Exception("params must be array");
+        }
+        if (count($array) == 0) {
+            return '';
+        }
+        $s = '';
+        foreach ($array as $a) {
+            $s .= "'{$a}',";
+        }
+
+        return substr($s, 0, -1);
     }
 
 
