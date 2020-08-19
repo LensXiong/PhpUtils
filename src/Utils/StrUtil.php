@@ -55,5 +55,42 @@ class StrUtil
         return $hex;
     }
 
+    /**
+     * 处理RSA密钥内容，拼接对应秘钥开始和结束的格式
+     * @param string $key 传入的密钥信息， 可能是文件或者字符串
+     * @param string $type
+     * @return string
+     * @author wangxiong
+     */
+    public static function getRsaKeyValue($key, $type = 'private')
+    {
+        // 传入文件
+        if (is_file($key)) {
+            $keyStr = @file_get_contents($key);
+        } else {
+            $keyStr = $key;
+        }
+        if (empty($keyStr)) {
+            return null;
+        }
+
+        $keyStr = str_replace(PHP_EOL, '', $keyStr);
+        // 处理秘钥格式
+        if ($type === 'private') {
+            $beginStr = '-----BEGIN RSA PRIVATE KEY-----';
+            $endStr = '-----END RSA PRIVATE KEY-----';
+        } else {
+            $beginStr = '-----BEGIN PUBLIC KEY-----';
+            $endStr = '-----END PUBLIC KEY-----';
+        }
+        $keyStr = str_replace($beginStr, '', $keyStr);
+        $keyStr = str_replace($endStr, '', $keyStr);
+
+        $rsaKey = chunk_split($keyStr, 64, PHP_EOL);
+        $rsaKey = $beginStr . PHP_EOL . $rsaKey . $endStr;
+
+        return $rsaKey;
+    }
+
 
 }
